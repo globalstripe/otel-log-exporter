@@ -83,7 +83,7 @@ def run(
         if verbose and key:
             print(f"Fetching single key: s3://{bucket}/{key}", file=sys.stderr)
         for key_item, _last_mod, _size in keys_iter:
-            if verbose and not key:
+            if verbose and not key and objects_processed == 0:
                 since_msg = f"since last {since_minutes} min" if since_minutes is not None else "all time"
                 path = f"s3://{bucket}{prefixes[0]}" if prefixes and prefixes[0].startswith("/") else f"s3://{bucket}/{prefixes[0] if prefixes else ''}"
                 print(f"Listing {path} ({since_msg})...", file=sys.stderr)
@@ -122,7 +122,7 @@ def run(
             if verbose:
                 if key:
                     print(f"Processing: s3://{bucket}/{key_item}", file=sys.stderr)
-                else:
+                elif objects_processed == 0:
                     since_msg = f"since last {since_minutes} min" if since_minutes is not None else "all time"
                     path = f"s3://{bucket}{prefixes[0]}" if prefixes and prefixes[0].startswith("/") else f"s3://{bucket}/{prefixes[0] if prefixes else ''}"
                     print(f"Listing {path} ({since_msg})...", file=sys.stderr)

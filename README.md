@@ -78,6 +78,14 @@ python -m src.collector --inspect-cmcd --since-minutes 900 -v
 
 Prints each log line that contains CMCD in the request URL: the `request` field and parsed `CMCD` key-value pairs. Use `--max-objects` / `--max-lines-per-file` to limit scope.
 
+**Fetch and inspect a single S3 log file:**
+
+```bash
+python -m src.collector --key "/5gemerge/logs/2026/02/23/23/08/12/thn2-hw-edge-gc25.fe.gc.onl_vod-testbed.gcdn.co_access.log.gz" --inspect-cmcd -v
+```
+
+Use the exact key as shown by `aws s3 ls s3://amzn-gcore-logs/ --recursive` (with or without a leading slash, depending on your bucket). Only that object is downloaded and scanned; no prefix or time filter is applied.
+
 ### Options
 
 | Option | Env | Default | Description |
@@ -90,6 +98,7 @@ Prints each log line that contains CMCD in the request URL: the `request` field 
 | `--service-name` | `OTEL_SERVICE_NAME` | `cdn-logs-collector` | Service name in resource |
 | `--aws-profile` | `AWS_PROFILE` | — | AWS profile for S3 |
 | `--dry-run` | — | false | Only list S3 keys, do not send logs |
+| `--key` | — | — | Process only this S3 object key (use with `--inspect-cmcd` to inspect one file) |
 | `--max-objects` | — | — | Max S3 objects to process |
 | `--max-lines-per-file` | — | — | Max lines per file (for testing) |
 

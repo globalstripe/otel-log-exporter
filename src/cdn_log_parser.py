@@ -6,7 +6,7 @@ CMCD (Common Media Client Data) is parsed from request query strings when presen
 from dataclasses import dataclass
 from typing import Any, Optional
 
-from .cmcd_parser import parse_cmcd_from_path
+from .cmcd_parser import parse_cmcd_from_path, parse_cmcd_from_query_string
 
 
 def _parse_quoted_fields(line: str) -> list[str]:
@@ -127,6 +127,25 @@ def parse_request(request: str) -> tuple[str, str]:
     return "", ""
 
 
+def _find_request_field(fields: list[str]) -> str:
+    """Find the field that looks like 'GET /path HTTP/1.1'. G-Core exports can use different column orders."""
+    for f in fields:
+        s = (f or "").strip()
+        if s.startswith("GET ") or s.startswith("POST ") or s.startswith("HEAD ") or s.startswith("PUT ") or s.startswith("OPTIONS "):
+            if " " in s[4:].strip() and "/" in s:
+                return s
+    return ""
+
+
+def _find_cmcd_raw_field(fields: list[str]) -> str:
+    """Find a field that is the raw query string starting with 'CMCD='. Use as fallback when request field has no query."""
+    for f in fields:
+        s = (f or "").strip()
+        if s.startswith("CMCD=") or s.startswith("cmcd="):
+            return s
+    return ""
+
+
 def parse_gcore_log_line(line: str) -> Optional[ParsedCDNLog]:
     """
     Parse a single G-Core CDN access log line (quoted-field format).
@@ -152,11 +171,16 @@ def parse_gcore_log_line(line: str) -> Optional[ParsedCDNLog]:
             attrs[f"cdn.{name}"] = fields[idx].strip() or "-"
 
     time_local = _strip_brackets(get(3))
-    request = get(4)
+    # Request can be at different indices depending on G-Core export config; find it by content
+    request = _find_request_field(fields) or get(4)
     method, path = parse_request(request)
 
-    # CMCD (Common Media Client Data) from query string, e.g. ?cmcd=br=3200,ot=v or ?cmcd.br=3200
+    # CMCD (Common Media Client Data) from query string: from path (?CMCD=...) or raw "CMCD=..." field
     cmcd_attrs = parse_cmcd_from_path(path)
+    if not cmcd_attrs:
+        raw_cmcd = _find_cmcd_raw_field(fields)
+        if raw_cmcd:
+            cmcd_attrs = parse_cmcd_from_query_string(raw_cmcd)
     for k, v in cmcd_attrs.items():
         if v:
             attrs[k] = v
