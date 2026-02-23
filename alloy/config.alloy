@@ -1,0 +1,26 @@
+// Receive OTLP logs (gRPC 4317, HTTP 4318) from the CDN logs collector,
+// batch them, and export to Loki. View in Grafana (Explore -> Loki).
+
+otelcol.receiver.otlp "default" {
+  grpc {
+    endpoint = "0.0.0.0:4317"
+  }
+  http {
+    endpoint = "0.0.0.0:4318"
+  }
+  output {
+    logs = [otelcol.processor.batch.default.input]
+  }
+}
+
+otelcol.processor.batch "default" {
+  output {
+    logs = [otelcol.exporter.otlphttp.default.input]
+  }
+}
+
+otelcol.exporter.otlphttp "default" {
+  client {
+    endpoint = "http://loki:3100/otlp"
+  }
+}

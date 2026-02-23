@@ -1,0 +1,45 @@
+# Alloy (OTLP receiver) + Loki + Grafana for CDN logs.
+# Run: ./docker-up.sh  or  docker compose up -d
+
+services:
+  alloy:
+    image: grafana/alloy:latest
+    container_name: otel-logs-alloy
+    # Config as positional arg; bind UI to 0.0.0.0 so it’s reachable from host
+    command: ["run", "--server.http.listen-addr=0.0.0.0:12345", "--storage.path=/var/lib/alloy/data", "/etc/alloy/config.alloy"]
+    ports:
+      - "4317:4317"   # OTLP gRPC (collector sends here)
+      - "4318:4318"   # OTLP HTTP
+      - "14251:12345" # Alloy UI → http://localhost:14251
+    volumes:
+      - "./alloy/config.alloy:/etc/alloy/config.alloy:ro"
+      - alloy_data:/var/lib/alloy/data
+    depends_on:
+      - loki
+    restart: unless-stopped
+
+  loki:
+    image: grafana/loki:latest
+    container_name: otel-logs-loki
+    ports:
+      - "3100:3100"
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: otel-logs-grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_HTTP_PORT=3000
+    ports:
+      - "3000:3000"
+    volumes:
+      - "./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro"
+    depends_on:
+      - loki
+    restart: unless-stopped
+
+volumes:
+  alloy_data: {}
