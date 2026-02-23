@@ -1,0 +1,12 @@
+# Provision dashboards from the dashboards folder.
+apiVersion: 1
+providers:
+  - name: default
+    orgId: 1
+    folder: CDN Logs
+    folderUid: cdn-logs
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    options:
+      path: /etc/grafana/provisioning/dashboards/json

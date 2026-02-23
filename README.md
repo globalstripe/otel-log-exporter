@@ -32,7 +32,7 @@ This starts:
 - **Loki** – stores logs
 - **Grafana** – http://localhost:3000 (login: `admin` / `admin`)
 
-After starting, run the collector with `--endpoint localhost:4317`. In Grafana go to **Explore** → choose **Loki** → query e.g. `{service_name="cdn-logs-collector"}`.
+After starting, run the collector with `--endpoint localhost:4317`. In Grafana go to **Explore** → choose **Loki** → query e.g. `{service_name="cdn-logs-collector"}`. A **CDN logs – CMCD metrics** dashboard is provisioned under the **CDN Logs** folder; it shows request rates, CMCD by object type, buffer length, bitrate, measured throughput, and top content IDs.
 
 To stop: `docker compose down`.
 

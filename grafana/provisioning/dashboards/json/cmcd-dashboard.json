@@ -1,0 +1,184 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "id": 1,
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "single" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "loki" },
+          "editorMode": "code",
+          "expr": "sum(rate({service_name=\"cdn-logs-collector\"}[5m]))",
+          "legendFormat": "All requests",
+          "refId": "A"
+        }
+      ],
+      "title": "CDN log request rate (all)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "id": 2,
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "single" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "loki" },
+          "editorMode": "code",
+          "expr": "sum(rate({service_name=\"cdn-logs-collector\"} |= \"CMCD=\" [5m]))",
+          "legendFormat": "With CMCD",
+          "refId": "A"
+        }
+      ],
+      "title": "Request rate (with CMCD)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "id": 3,
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "single" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "loki" },
+          "editorMode": "code",
+          "expr": "sum by (ot) (count_over_time({service_name=\"cdn-logs-collector\"} |= \"CMCD=\" | regexp \"ot%3D(?P<ot>[a-z])\" [5m]))",
+          "legendFormat": "{{ot}}",
+          "refId": "A"
+        }
+      ],
+      "title": "CMCD requests by object type (ot: v=video, a=audio, m=manifest, i=init)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "id": 4,
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "single" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "loki" },
+          "editorMode": "code",
+          "expr": "avg_over_time({service_name=\"cdn-logs-collector\"} |= \"CMCD=\" | regexp \"bl%3D(?P<bl>\\\\d+)\" | unwrap bl [5m])",
+          "legendFormat": "Buffer length (ms)",
+          "refId": "A"
+        }
+      ],
+      "title": "CMCD average buffer length (bl) ms",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 16 },
+      "id": 5,
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "single" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "loki" },
+          "editorMode": "code",
+          "expr": "avg_over_time({service_name=\"cdn-logs-collector\"} |= \"CMCD=\" | regexp \"br%3D(?P<br>\\\\d+)\" | unwrap br [5m])",
+          "legendFormat": "Bitrate (kbps)",
+          "refId": "A"
+        }
+      ],
+      "title": "CMCD average bitrate (br) kbps",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 16 },
+      "id": 6,
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "single" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "loki" },
+          "editorMode": "code",
+          "expr": "avg_over_time({service_name=\"cdn-logs-collector\"} |= \"CMCD=\" | regexp \"mtp%3D(?P<mtp>\\\\d+)\" | unwrap mtp [5m])",
+          "legendFormat": "Measured throughput (kbps)",
+          "refId": "A"
+        }
+      ],
+      "title": "CMCD average measured throughput (mtp) kbps",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 24 },
+      "id": 7,
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "single" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "loki" },
+          "editorMode": "code",
+          "expr": "topk(5, sum by (cid) (count_over_time({service_name=\"cdn-logs-collector\"} |= \"CMCD=\" | regexp \"cid%3D%22(?P<cid>[^%]+)%22\" [1h])))",
+          "legendFormat": "{{cid}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Top 5 content IDs (cid) by request count (1h)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 32 },
+      "id": 8,
+      "options": {
+        "showLabel": true,
+        "sortOrder": "Descending"
+      },
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "loki" },
+          "editorMode": "code",
+          "expr": "{service_name=\"cdn-logs-collector\"} |= \"CMCD=\"",
+          "refId": "A"
+        }
+      ],
+      "title": "Logs with CMCD (drill-down)",
+      "type": "logs"
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": ["cdn", "cmcd", "otel"],
+  "templating": { "list": [] },
+  "time": { "from": "now-1h", "to": "now" },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "CDN logs – CMCD metrics",
+  "uid": "cdn-cmcd-metrics",
+  "version": 1,
+  "weekStart": ""
+}
