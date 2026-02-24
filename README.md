@@ -2,9 +2,11 @@
 
 Utility to read **G-Core CDN access logs** from an S3 bucket, parse them, and send them as **OpenTelemetry logs** to a **Grafana Alloy** (or any OTLP) endpoint.
 
+Implementations: **Python** (default) and **TypeScript** (see `ts/` and `ts/README.md`).
+
 ## Prerequisites
 
-- Python 3.10+
+- Python 3.10+ (for Python version)
 - AWS credentials configured (e.g. `AWS_PROFILE` or default credentials) for S3 access
 - Grafana Alloy (or another OTLP receiver) listening for logs on gRPC (e.g. port 4317)
 
@@ -124,4 +126,14 @@ To run periodically (e.g. every 5 minutes) for recent logs:
 ```
 
 Or run once with a time window that matches your CDN delivery delay (e.g. `--since-minutes 120`).
-# otel-log-exporter
+
+## TypeScript version
+
+A TypeScript/Node.js port lives in `ts/`. Build and run:
+
+```bash
+cd ts && npm install && npm run build
+node dist/collector.js --since-minutes 60 --endpoint localhost:4317
+```
+
+See `ts/README.md` for full options and environment variables.
